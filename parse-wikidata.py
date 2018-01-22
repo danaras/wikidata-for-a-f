@@ -6,7 +6,7 @@ qid=''
 entitiesFound = False
 output = open('output.csv', 'w')
 csvWriter = csv.writer(output)
-csvWriter.writerow(['language','title','p21','gender','p106','occupation'])
+csvWriter.writerow(['language','title','QID','p21','gender','p106','occupation'])
 with open('test.csv','rb') as csvfile:
 	reader = csv.reader(csvfile)
 	for row in reader:
@@ -29,7 +29,6 @@ with open('test.csv','rb') as csvfile:
 				entitiesFound = True
 			except:
 				print "cannot find entities"
-				entitiesFound = False
 			for key in keys:
 				qid = key
 			print qid
@@ -69,12 +68,14 @@ with open('test.csv','rb') as csvfile:
 					print occupation
 				except URLError, e:
 					print 'No kittez. Got an error code:', e
-			csvWriter.writerow([language, titleOriginal, p21, gender, p106, occupation])
-			p21 = ''
-			p106 = ''
-			language = ''
-			titleOriginal = ''
-			gender = ''
-			occupation = ''
+			csvWriter.writerow([language, titleOriginal, qid, p21, gender, p106, occupation])
 		except URLError, e:
 		    print 'General error. Got an error code:', e
+		keys = []
+		qid = ''
+		p21 = ''
+		p106 = ''
+		language = ''
+		titleOriginal = ''
+		gender = ''
+		occupation = ''
