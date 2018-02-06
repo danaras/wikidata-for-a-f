@@ -4,18 +4,19 @@ title =''
 language =''
 qid=''
 entitiesFound = False
+firstSentence = ''
 #output file for female with occupation
 outputFemaleGood = open('good.csv', 'w')
 csvWriterFemaleGood = csv.writer(outputFemaleGood)
-csvWriterFemaleGood.writerow(['language','title','QID','p21','gender','p106','occupation'])
+csvWriterFemaleGood.writerow(['language','title','QID','p21','gender','p106','occupation','pw first sentence'])
 #output file for female with no occupation
 outputFemaleLack = open('needs-occupation.csv', 'w')
 csvWriterFemaleLack = csv.writer(outputFemaleLack)
-csvWriterFemaleLack.writerow(['language','title','QID','p21','gender','p106','occupation'])
+csvWriterFemaleLack.writerow(['language','title','QID','p21','gender','p106','occupation','pw first sentence'])
 #output file for other
 outputOther = open('output-other.csv', 'w')
 csvWriterOther = csv.writer(outputOther)
-csvWriterOther.writerow(['language','title','QID','p21','gender','p106','occupation'])
+csvWriterOther.writerow(['language','title','QID','p21','gender','p106','occupation','pw first sentence'])
 with open('test.csv','rb') as csvfile:
 	reader = csv.reader(csvfile)
 	for row in reader:
@@ -26,9 +27,24 @@ with open('test.csv','rb') as csvfile:
 		title = titleOriginal.replace(' ', '+')
 		print language
 		print title
-
-
+		titleWP=titleOriginal.replace(' ', '%20')
+		print titleWP
 		request = Request('https://www.wikidata.org/w/api.php?action=wbgetentities&sites='+language+'wiki&titles='+title+'&languages='+language+'&props=claims%7Clabels&format=json')
+		wpRequest = Request('https://'+language+'.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro=&explaintext=&titles='+titleWP)
+		try:
+			responsePW = urlopen(wpRequest)
+			wikiPedia = responsePW.read()
+			jsonDataPW = json.loads(wikiPedia)
+			try:
+				keys = jsonDataPW["query"]["pages"].keys()
+				extract = jsonDataPW["query"]["pages"][keys[0]]["extract"]
+				print extract
+				firstSentence = extract.split(".")[0].encode("utf8")
+				print firstSentence
+			except:
+				print "cannot find extract"
+		except:
+			print "erroor"
 		try:
 			response = urlopen(request)
 			wikiData = response.read()
@@ -79,11 +95,11 @@ with open('test.csv','rb') as csvfile:
 					print 'No kittez. Got an error code:', e
 			if "female" in gender.lower():
 				if occupation:
-					csvWriterFemaleGood.writerow([language, titleOriginal, qid, p21, gender, p106, occupation])
+					csvWriterFemaleGood.writerow([language, titleOriginal, qid, p21, gender, p106, occupation, firstSentence])
 				else:
-					csvWriterFemaleLack.writerow([language, titleOriginal, qid, p21, gender, p106, occupation])
+					csvWriterFemaleLack.writerow([language, titleOriginal, qid, p21, gender, p106, occupation, firstSentence])
 			else:
-				csvWriterOther.writerow([language, titleOriginal, qid, p21, gender, p106, occupation])
+				csvWriterOther.writerow([language, titleOriginal, qid, p21, gender, p106, occupation, firstSentence])
 		except URLError, e:
 		    print 'General error. Got an error code:', e
 		keys = []
@@ -94,3 +110,4 @@ with open('test.csv','rb') as csvfile:
 		titleOriginal = ''
 		gender = ''
 		occupation = ''
+		firstSentence = ''
