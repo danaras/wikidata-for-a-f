@@ -4,9 +4,18 @@ title =''
 language =''
 qid=''
 entitiesFound = False
-output = open('output.csv', 'w')
-csvWriter = csv.writer(output)
-csvWriter.writerow(['language','title','QID','p21','gender','p106','occupation'])
+#output file for female with occupation
+outputFemaleGood = open('good.csv', 'w')
+csvWriterFemaleGood = csv.writer(outputFemaleGood)
+csvWriterFemaleGood.writerow(['language','title','QID','p21','gender','p106','occupation'])
+#output file for female with no occupation
+outputFemaleLack = open('needs-occupation.csv', 'w')
+csvWriterFemaleLack = csv.writer(outputFemaleLack)
+csvWriterFemaleLack.writerow(['language','title','QID','p21','gender','p106','occupation'])
+#output file for other
+outputOther = open('output-other.csv', 'w')
+csvWriterOther = csv.writer(outputOther)
+csvWriterOther.writerow(['language','title','QID','p21','gender','p106','occupation'])
 with open('test.csv','rb') as csvfile:
 	reader = csv.reader(csvfile)
 	for row in reader:
@@ -68,7 +77,13 @@ with open('test.csv','rb') as csvfile:
 					print occupation
 				except URLError, e:
 					print 'No kittez. Got an error code:', e
-			csvWriter.writerow([language, titleOriginal, qid, p21, gender, p106, occupation])
+			if "female" in gender.lower():
+				if occupation:
+					csvWriterFemaleGood.writerow([language, titleOriginal, qid, p21, gender, p106, occupation])
+				else:
+					csvWriterFemaleLack.writerow([language, titleOriginal, qid, p21, gender, p106, occupation])
+			else:
+				csvWriterOther.writerow([language, titleOriginal, qid, p21, gender, p106, occupation])
 		except URLError, e:
 		    print 'General error. Got an error code:', e
 		keys = []
